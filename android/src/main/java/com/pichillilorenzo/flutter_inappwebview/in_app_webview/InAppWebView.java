@@ -5,6 +5,7 @@ import static com.pichillilorenzo.flutter_inappwebview.types.PreferredContentMod
 
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -504,7 +505,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     } else {
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
       if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-      settings.setAppCacheEnabled(true);
+        settings.setAppCacheEnabled(true);
       settings.setSavePassword(true);
       settings.setSaveFormData(true);
     }
@@ -548,7 +549,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     if (plugin == null) {
       return;
     }
-    
+
     loadUrl(Util.getUrlAsset(plugin, assetFilePath));
   }
 
@@ -578,7 +579,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
 
   public void takeScreenshot(final @Nullable Map<String, Object> screenshotConfiguration, final MethodChannel.Result result) {
     final float pixelDensity = Util.getPixelDensity(getContext());
-    
+
     mainLooperHandler.post(new Runnable() {
       @Override
       public void run() {
@@ -986,7 +987,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     if (resultUuid != null && resultCallback != null) {
       evaluateJavaScriptContentWorldCallbacks.put(resultUuid, resultCallback);
       scriptToInject = Util.replaceAll(PluginScriptsUtil.EVALUATE_JAVASCRIPT_WITH_CONTENT_WORLD_WRAPPER_JS_SOURCE,
-              PluginScriptsUtil.VAR_RANDOM_NAME, "_" + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + "_" + Math.round(Math.random() * 1000000))
+                      PluginScriptsUtil.VAR_RANDOM_NAME, "_" + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + "_" + Math.round(Math.random() * 1000000))
               .replace(PluginScriptsUtil.VAR_PLACEHOLDER_VALUE, UserContentController.escapeCode(source))
               .replace(PluginScriptsUtil.VAR_RESULT_UUID, resultUuid);
     }
@@ -1031,15 +1032,15 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
         String scriptIdEscaped = idAttr.replaceAll("'", "\\\\'");
         scriptAttributes += " script.id = '" + scriptIdEscaped + "'; ";
         scriptAttributes += " script.onload = function() {" +
-        "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
-        "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptLoaded', '" + scriptIdEscaped + "');" +
-        "  }" +
-        "};";
+                "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
+                "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptLoaded', '" + scriptIdEscaped + "');" +
+                "  }" +
+                "};";
         scriptAttributes += " script.onerror = function() {" +
-        "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
-        "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptError', '" + scriptIdEscaped + "');" +
-        "  }" +
-        "};";
+                "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
+                "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptError', '" + scriptIdEscaped + "');" +
+                "  }" +
+                "};";
       }
       Boolean asyncAttr = (Boolean) scriptHtmlTagAttributes.get("async");
       if (asyncAttr != null && asyncAttr) {
@@ -1193,13 +1194,13 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
       DownloadStartRequest downloadStartRequest = new DownloadStartRequest(
-        url,
-        userAgent,
-        contentDisposition,
-        mimeType,
-        contentLength,
-        URLUtil.guessFileName(url, contentDisposition, mimeType),
-        null
+              url,
+              userAgent,
+              contentDisposition,
+              mimeType,
+              contentLength,
+              URLUtil.guessFileName(url, contentDisposition, mimeType),
+              null
       );
       channel.invokeMethod("onDownloadStartRequest", downloadStartRequest.toMap());
     }
@@ -1668,6 +1669,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     return webMessageChannel;
   }
 
+  @SuppressLint("RequiresFeature")
   public void addWebMessageListener(@NonNull WebMessageListener webMessageListener) throws Exception {
     WebViewCompat.addWebMessageListener(this, webMessageListener.jsObjectName, webMessageListener.allowedOriginRules, webMessageListener.listener);
     webMessageListeners.add(webMessageListener);

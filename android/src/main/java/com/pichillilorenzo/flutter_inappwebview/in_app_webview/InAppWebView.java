@@ -1,11 +1,7 @@
 package com.pichillilorenzo.flutter_inappwebview.in_app_webview;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
-import static com.pichillilorenzo.flutter_inappwebview.types.PreferredContentModeOptionType.fromValue;
-
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -103,6 +99,9 @@ import java.util.regex.Pattern;
 import io.flutter.plugin.common.MethodChannel;
 import okhttp3.OkHttpClient;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static com.pichillilorenzo.flutter_inappwebview.types.PreferredContentModeOptionType.fromValue;
+
 final public class InAppWebView extends InputAwareWebView implements InAppWebViewInterface {
 
   static final String LOG_TAG = "InAppWebView";
@@ -163,7 +162,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     super(context, attrs, defaultStyle);
   }
 
-  public InAppWebView(Context context, @Nullable InAppWebViewFlutterPlugin plugin,
+  public InAppWebView(Context context, InAppWebViewFlutterPlugin plugin,
                       MethodChannel channel, Object id,
                       @Nullable Integer windowId, InAppWebViewOptions options,
                       @Nullable Map<String, Object> contextMenu, View containerView,
@@ -277,9 +276,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     settings.setAllowFileAccessFromFileURLs(options.allowFileAccessFromFileURLs);
     settings.setAllowUniversalAccessFromFileURLs(options.allowUniversalAccessFromFileURLs);
     setCacheEnabled(options.cacheEnabled);
-    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-      if (options.appCachePath != null && !options.appCachePath.isEmpty() && options.cacheEnabled)
-        settings.setAppCachePath(options.appCachePath);
+
     settings.setBlockNetworkImage(options.blockNetworkImage);
     settings.setBlockNetworkLoads(options.blockNetworkLoads);
     if (options.cacheMode != null)
@@ -493,8 +490,6 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
 
       // Disable caching
       settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-      if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-        settings.setAppCacheEnabled(false);
       clearHistory();
       clearCache(true);
 
@@ -504,8 +499,6 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
       settings.setSaveFormData(false);
     } else {
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-      if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-        settings.setAppCacheEnabled(true);
       settings.setSavePassword(true);
       settings.setSaveFormData(true);
     }
@@ -516,16 +509,10 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     if (enabled) {
       Context ctx = getContext();
       if (ctx != null) {
-        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-          settings.setAppCachePath(ctx.getCacheDir().getAbsolutePath());
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-          settings.setAppCacheEnabled(true);
       }
     } else {
       settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-      if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-        settings.setAppCacheEnabled(false);
     }
   }
 
@@ -769,9 +756,6 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
 
     if (newOptionsMap.get("cacheEnabled") != null && options.cacheEnabled != newOptions.cacheEnabled)
       setCacheEnabled(newOptions.cacheEnabled);
-    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S)
-      if (newOptionsMap.get("appCachePath") != null && (options.appCachePath == null || !options.appCachePath.equals(newOptions.appCachePath)))
-        settings.setAppCachePath(newOptions.appCachePath);
 
     if (newOptionsMap.get("blockNetworkImage") != null && options.blockNetworkImage != newOptions.blockNetworkImage)
       settings.setBlockNetworkImage(newOptions.blockNetworkImage);
@@ -987,7 +971,7 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     if (resultUuid != null && resultCallback != null) {
       evaluateJavaScriptContentWorldCallbacks.put(resultUuid, resultCallback);
       scriptToInject = Util.replaceAll(PluginScriptsUtil.EVALUATE_JAVASCRIPT_WITH_CONTENT_WORLD_WRAPPER_JS_SOURCE,
-                      PluginScriptsUtil.VAR_RANDOM_NAME, "_" + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + "_" + Math.round(Math.random() * 1000000))
+              PluginScriptsUtil.VAR_RANDOM_NAME, "_" + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + "_" + Math.round(Math.random() * 1000000))
               .replace(PluginScriptsUtil.VAR_PLACEHOLDER_VALUE, UserContentController.escapeCode(source))
               .replace(PluginScriptsUtil.VAR_RESULT_UUID, resultUuid);
     }
@@ -1032,15 +1016,15 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
         String scriptIdEscaped = idAttr.replaceAll("'", "\\\\'");
         scriptAttributes += " script.id = '" + scriptIdEscaped + "'; ";
         scriptAttributes += " script.onload = function() {" +
-                "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
-                "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptLoaded', '" + scriptIdEscaped + "');" +
-                "  }" +
-                "};";
+        "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
+        "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptLoaded', '" + scriptIdEscaped + "');" +
+        "  }" +
+        "};";
         scriptAttributes += " script.onerror = function() {" +
-                "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
-                "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptError', '" + scriptIdEscaped + "');" +
-                "  }" +
-                "};";
+        "  if (window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + " != null) {" +
+        "    window." + JavaScriptBridgeJS.JAVASCRIPT_BRIDGE_NAME + ".callHandler('onInjectedScriptError', '" + scriptIdEscaped + "');" +
+        "  }" +
+        "};";
       }
       Boolean asyncAttr = (Boolean) scriptHtmlTagAttributes.get("async");
       if (asyncAttr != null && asyncAttr) {
@@ -1194,13 +1178,13 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
       DownloadStartRequest downloadStartRequest = new DownloadStartRequest(
-              url,
-              userAgent,
-              contentDisposition,
-              mimeType,
-              contentLength,
-              URLUtil.guessFileName(url, contentDisposition, mimeType),
-              null
+        url,
+        userAgent,
+        contentDisposition,
+        mimeType,
+        contentLength,
+        URLUtil.guessFileName(url, contentDisposition, mimeType),
+        null
       );
       channel.invokeMethod("onDownloadStartRequest", downloadStartRequest.toMap());
     }
@@ -1669,7 +1653,6 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     return webMessageChannel;
   }
 
-  @SuppressLint("RequiresFeature")
   public void addWebMessageListener(@NonNull WebMessageListener webMessageListener) throws Exception {
     WebViewCompat.addWebMessageListener(this, webMessageListener.jsObjectName, webMessageListener.allowedOriginRules, webMessageListener.listener);
     webMessageListeners.add(webMessageListener);

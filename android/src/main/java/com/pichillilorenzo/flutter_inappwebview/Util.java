@@ -1,5 +1,6 @@
 package com.pichillilorenzo.flutter_inappwebview;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.http.SslCertificate;
@@ -9,9 +10,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.WebSettings;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.pichillilorenzo.flutter_inappwebview.in_app_webview.InAppWebViewOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

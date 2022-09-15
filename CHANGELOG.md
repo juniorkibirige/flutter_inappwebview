@@ -1,6 +1,5 @@
 ## 5.4.3+8
-
-- Fixed
+- Removed call to setAppCacheEnabled and setAppCachePath
 
 ## 5.4.3+7
 

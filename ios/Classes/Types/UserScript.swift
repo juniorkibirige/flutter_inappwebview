@@ -3,6 +3,7 @@
 //  flutter_inappwebview
 //
 //  Created by Lorenzo Pichilli on 16/02/21.
+//  Updated by Junior Lawrence on 15/09/22.
 //
 
 import Foundation
